@@ -8,13 +8,13 @@ namespace Sybon.Auth.Repositories.UsersRepository
     [UsedImplicitly]
     public class UsersRepository : BaseEntityRepository<User, long>, IUsersRepository
     {
-        public UsersRepository(EntityContext<User> context) : base(context)
+        public UsersRepository(AuthContext context) : base(context)
         {
         }
 
         public Task<User> FindByLoginAsync(string login)
         {
-            return Context.Entities.FirstOrDefaultAsync(x => x.Login == login);
+            return Context.Users.FirstOrDefaultAsync(x => x.Login == login);
         }
     }
 }

@@ -18,21 +18,18 @@ namespace Sybon.Auth.Services.PermissionsService
     {
         private readonly IProblemsApi _problemsApi;
         private readonly IUsersService _usersService;
-        private readonly ICollectionPermissionsRepository _collectionPermissionsRepository;
-        private readonly ISubmitLimitsRepository _submitLimitsRepository;
+        private readonly IRepositoryUnitOfWork _repositoryUnitOfWork;
         private static readonly ConcurrentDictionary<long, LimitInfo> LimitInfos = 
             new ConcurrentDictionary<long, LimitInfo>();
 
         public PermissionsService(
             IProblemsApi problemsApi,
             IUsersService usersService,
-            ICollectionPermissionsRepository collectionPermissionsRepository,
-            ISubmitLimitsRepository submitLimitsRepository)
+            IRepositoryUnitOfWork repositoryUnitOfWork)
         {
             _problemsApi = problemsApi;
             _usersService = usersService;
-            _collectionPermissionsRepository = collectionPermissionsRepository;
-            _submitLimitsRepository = submitLimitsRepository;
+            _repositoryUnitOfWork = repositoryUnitOfWork;
         }
 
         public Task<PermissionType> GetToProblemAsync(long userId, long problemId)
@@ -50,7 +47,7 @@ namespace Sybon.Auth.Services.PermissionsService
                 return PermissionType.None;
             if (user.Role == User.RoleType.Admin)
                 return PermissionType.ReadAndWrite;
-            var permission = await _collectionPermissionsRepository.FindByUserAndCollectionAsync(userId, collectionId);
+            var permission = await _repositoryUnitOfWork.GetRepository<ICollectionPermissionsRepository>().FindByUserAndCollectionAsync(userId, collectionId);
             if (permission == null)
                 return PermissionType.None;
 
@@ -59,11 +56,11 @@ namespace Sybon.Auth.Services.PermissionsService
         
         public async Task AddToCollectionAsync(long userId, long collectionId, PermissionType permission)
         {
-            var dbPermission = await _collectionPermissionsRepository.FindByUserAndCollectionAsync(userId, collectionId);
+            var dbPermission = await _repositoryUnitOfWork.GetRepository<ICollectionPermissionsRepository>().FindByUserAndCollectionAsync(userId, collectionId);
             if (dbPermission != null)
             {
                 dbPermission.Type = (CollectionPermission.PermissionType) permission;
-                await _collectionPermissionsRepository.SaveAsync();
+                await _repositoryUnitOfWork.SaveChangesAsync();
             }
             else
             {
@@ -73,8 +70,8 @@ namespace Sybon.Auth.Services.PermissionsService
                     UserId = userId,
                     Type = (CollectionPermission.PermissionType) permission
                 };
-                await _collectionPermissionsRepository.AddAsync(dbPermission);
-                await _collectionPermissionsRepository.SaveAsync();
+                await _repositoryUnitOfWork.GetRepository<ICollectionPermissionsRepository>().AddAsync(dbPermission);
+                await _repositoryUnitOfWork.SaveChangesAsync();
             }
         }
 
@@ -88,9 +85,9 @@ namespace Sybon.Auth.Services.PermissionsService
                 limitInfo.MonthCurrent += cnt;
                 
                 // Write montly limit to db.
-                var submitLimit = _submitLimitsRepository.GetByUserIdAsync(userId).Result;
+                var submitLimit = _repositoryUnitOfWork.GetRepository<ISubmitLimitsRepository>().GetByUserIdAsync(userId).Result;
                 submitLimit.SubmitsDuringMonth += cnt;
-                _submitLimitsRepository.SaveAsync().Wait();
+                _repositoryUnitOfWork.SaveChanges();
             }
             return true;
         }
@@ -110,7 +107,7 @@ namespace Sybon.Auth.Services.PermissionsService
         private LimitInfo CreateLimitInfo(long userId)
         {
             // ReSharper disable once InconsistentlySynchronizedField - because this function is called from concurrent dictionary
-            var submitLimit = _submitLimitsRepository.FindByUserIdAsync(userId).Result;
+            var submitLimit = _repositoryUnitOfWork.GetRepository<ISubmitLimitsRepository>().FindByUserIdAsync(userId).Result;
             if (submitLimit == null)
             {
                 submitLimit = new SubmitLimit
@@ -120,9 +117,9 @@ namespace Sybon.Auth.Services.PermissionsService
                     MonthLimit = 120*60*24*31
                 };
                 // ReSharper disable once InconsistentlySynchronizedField - because this function is called from concurrent dictionary
-                _submitLimitsRepository.AddAsync(submitLimit).Wait();
+                _repositoryUnitOfWork.GetRepository<ISubmitLimitsRepository>().AddAsync(submitLimit).Wait();
                 // ReSharper disable once InconsistentlySynchronizedField - because this function is called from concurrent dictionary
-                _submitLimitsRepository.SaveAsync().Wait();
+                _repositoryUnitOfWork.SaveChangesAsync().Wait();
             }
             return new LimitInfo
             {
@@ -145,7 +142,7 @@ namespace Sybon.Auth.Services.PermissionsService
 
                 limitInfo.MinuteCurrent = 0;
                 
-                limitInfo.MinuteLimit = _submitLimitsRepository.GetByUserIdAsync(userId).Result.MinuteLimit;
+                limitInfo.MinuteLimit = _repositoryUnitOfWork.GetRepository<ISubmitLimitsRepository>().GetByUserIdAsync(userId).Result.MinuteLimit;
                 limitInfo.MinuteLimitClearedTime = DateTime.Now;
             }
         }
@@ -159,12 +156,12 @@ namespace Sybon.Auth.Services.PermissionsService
 
                 limitInfo.MonthCurrent = 0;
 
-                var submitLimit = _submitLimitsRepository.GetByUserIdAsync(userId).Result;
+                var submitLimit = _repositoryUnitOfWork.GetRepository<ISubmitLimitsRepository>().GetByUserIdAsync(userId).Result;
                 submitLimit.SubmitsRefreshDate = DateTime.Now;
                 submitLimit.SubmitsDuringMonth = 0;
-                _submitLimitsRepository.SaveAsync();
+                _repositoryUnitOfWork.SaveChangesAsync();
                 
-                limitInfo.MonthLimit = _submitLimitsRepository.GetByUserIdAsync(userId).Result.MonthLimit;
+                limitInfo.MonthLimit = submitLimit.MonthLimit;
                 limitInfo.MonthLimitClearedTime = DateTime.Now;
             }
         }

@@ -15,7 +15,6 @@ namespace Sybon.Auth.Services.UsersService
                 Login = user.Login,
                 Name = user.Name,
                 Password = user.Password,
-                TokenId = user.TokenId,
                 Role =  (Models.User.RoleType) user.Role
             };
         }
@@ -29,7 +28,6 @@ namespace Sybon.Auth.Services.UsersService
                 Login = user.Login,
                 Name = user.Name,
                 Password = user.Password,
-                TokenId = user.TokenId,
                 Role =  (User.RoleType) user.Role
             };
         }

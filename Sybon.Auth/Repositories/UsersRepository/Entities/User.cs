@@ -1,4 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using Sybon.Auth.Repositories.CollectionPermissionsRepository.Entities;
+using Sybon.Auth.Repositories.SubmitLimitsRepository.Entities;
+using Sybon.Auth.Repositories.TokensRepository.Entities;
 
 namespace Sybon.Auth.Repositories.UsersRepository.Entities
 {
@@ -20,9 +24,9 @@ namespace Sybon.Auth.Repositories.UsersRepository.Entities
         [Required]
         [MaxLength(100)]
         public string Password { get; set; }
-        public long? TokenId { get; set; }
+        public Token Token { get; set; }
         public RoleType Role { get; set; }
-        //public ICollection<CollectionPermission> ProblemPermissions { get; set; }
-        //public SubmitLimit SubmitLimit { get; set; }
+        public ICollection<CollectionPermission> ProblemPermissions { get; set; }
+        public SubmitLimit SubmitLimit { get; set; }
     }
 }

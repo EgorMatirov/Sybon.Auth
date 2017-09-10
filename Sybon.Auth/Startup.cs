@@ -46,7 +46,14 @@ namespace Sybon.Auth
                 c.OperationFilter<SwaggerApiKeySecurityFilter>();
             });
 
-            AddDbContextPools(services);
+            services.AddScoped(provider => new AuthContext(
+                    new DbContextOptionsBuilder<AuthContext>()
+                        .UseInMemoryDatabase("auth")
+                        .Options
+                )
+            );
+
+            services.AddScoped<IRepositoryUnitOfWork, RepositoryUnitOfWork<AuthContext>>();
 
             services.AddScoped<IUsersRepository, UsersRepository>();
             services.AddScoped<IUsersConverter, UsersConverter>();
@@ -65,28 +72,6 @@ namespace Sybon.Auth
             services.AddScoped<IProblemsApi, ProblemsApiStub>();
             services.AddScoped<IAccountApi, AccountApi>();
             services.AddScoped<IPermissionsApi, PermissionsApi>();
-        }
-
-        private static void AddDbContextPools(IServiceCollection services)
-        {
-            AddDbContextPool<User>(services, "users");
-            AddDbContextPool<Token>(services, "tokens");
-            AddDbContextPool<CollectionPermission>(services, "collection_permissions");
-            AddDbContextPool<SubmitLimit>(services, "submit_limits");
-        }
-
-        private static void AddDbContextPool<TEntity>(IServiceCollection services, string dbName) where TEntity : class
-        {
-            services.AddScoped(provider => 
-                new EntityContext<TEntity>(
-                    new DbContextOptionsBuilder<EntityContext<TEntity>>()
-                        .UseInMemoryDatabase(dbName)
-                        .Options
-                )
-            );
-
-            //TODO: Use this in next release of EntityFramework Core. See https://github.com/aspnet/EntityFrameworkCore/issues/9433
-            //services.AddDbContextPool<EntityContext<TEntity>>(options => options.UseInMemoryDatabase(dbName));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

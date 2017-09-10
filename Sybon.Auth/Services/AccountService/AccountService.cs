@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Sybon.Auth.Repositories.TokensRepository;
+using Sybon.Auth.Repositories.UsersRepository;
 using Sybon.Auth.Services.AccountService.Models;
 using Sybon.Auth.Services.PasswordsService;
 using Sybon.Auth.Services.UsersService;
@@ -13,43 +14,38 @@ namespace Sybon.Auth.Services.AccountService
     [UsedImplicitly]
     public class AccountService : IAccountService
     {
-        private readonly IUsersService _usersService;
         private readonly IPasswordsService _passwordsService;
-        private readonly ITokensRepository _tokensRepository;
         private readonly ITokensConverter _tokensConverter;
+        private readonly IRepositoryUnitOfWork _repositoryUnitOfWork;
 
         public AccountService(
-            IUsersService usersService,
             IPasswordsService passwordsService,
-            ITokensRepository tokensRepository,
-            ITokensConverter tokensConverter)
+            ITokensConverter tokensConverter,
+            IRepositoryUnitOfWork repositoryUnitOfWork)
         {
-            _usersService = usersService;
             _passwordsService = passwordsService;
-            _tokensRepository = tokensRepository;
             _tokensConverter = tokensConverter;
+            _repositoryUnitOfWork = repositoryUnitOfWork;
         }
 
         public async Task<Token> AuthAsync(string login, string password)
         {
-            var user = await _usersService.FindByLoginAsync(login);
+            var user = await  _repositoryUnitOfWork.GetRepository<IUsersRepository>().FindByLoginAsync(login);
             if (user == null)
                 return null;
             if (!PasswordMatches(user, password))
                 return null;
             
-            var token = new Repositories.TokensRepository.Entities.Token
+            if (user.Token == null)
             {
-                Key = GenerateToken(),
-                ExpireTime = DateTime.Now.Add(TimeSpan.FromDays(1)),
-                UserId = user.Id
-            };
+                user.Token = new Repositories.TokensRepository.Entities.Token {UserId = user.Id};
+            }
 
-            await _tokensRepository.AddAsync(token);
-            await _tokensRepository.SaveAsync();
-            await _usersService.SetTokenIdAsync(user.Id, token.Id);
+            user.Token.Key = GenerateToken();
+            user.Token.ExpireTime = DateTime.Now.Add(TimeSpan.FromDays(1));
 
-            return _tokensConverter.Convert(token);
+            await _repositoryUnitOfWork.SaveChangesAsync();
+            return _tokensConverter.Convert(user.Token);
         }
 
         private static string GenerateToken()
@@ -60,17 +56,15 @@ namespace Sybon.Auth.Services.AccountService
             return string.Join(string.Empty, token);
         }
 
-        private bool PasswordMatches(User user, string password)
+        private bool PasswordMatches(Repositories.UsersRepository.Entities.User user, string password)
         {
             return user.Password == _passwordsService.HashPassword(password);
         }
 
         public async Task<Token> CheckTokenAsync(string key)
         {
-            var token = await _tokensRepository.FindByKeyAsync(key);
-            if (token == null) return null;
-            var user = await _usersService.FindAsync(token.UserId);
-            return user != null ? _tokensConverter.Convert(token) : null;
+            var token = await _repositoryUnitOfWork.GetRepository<ITokensRepository>().FindByKeyAsync(key);
+            return token?.User != null ? _tokensConverter.Convert(token) : null;
         }
     }
 }

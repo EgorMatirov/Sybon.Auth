@@ -6,8 +6,6 @@ namespace Sybon.Auth
     {
         Task<TEntity> FindAsync(TKey key);
         Task<TKey> AddAsync(TEntity entity);
-        void Remove(TEntity entity);
-        Task SaveAsync();
         Task RemoveAsync(TKey key);
     }
 }

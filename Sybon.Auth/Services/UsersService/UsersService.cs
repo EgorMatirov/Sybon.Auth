@@ -10,20 +10,20 @@ namespace Sybon.Auth.Services.UsersService
     [UsedImplicitly]
     public class UsersService : IUsersService
     {
-        private readonly IUsersRepository _usersRepository;
         private readonly IUsersConverter _usersConverter;
         private readonly IPasswordsService _passwordsService;
+        private readonly IRepositoryUnitOfWork _repositoryUnitOfWork;
 
-        public UsersService(IUsersRepository usersRepository, IUsersConverter usersConverter, IPasswordsService passwordsService)
+        public UsersService(IUsersConverter usersConverter, IPasswordsService passwordsService, IRepositoryUnitOfWork repositoryUnitOfWork)
         {
-            _usersRepository = usersRepository;
             _usersConverter = usersConverter;
             _passwordsService = passwordsService;
+            _repositoryUnitOfWork = repositoryUnitOfWork;
         }
 
         public async Task<User> FindAsync(long id)
         {
-            var dbEntry = await _usersRepository.FindAsync(id);
+            var dbEntry = await _repositoryUnitOfWork.GetRepository<IUsersRepository>().FindAsync(id);
             return _usersConverter.Convert(dbEntry);
         }
 
@@ -31,28 +31,21 @@ namespace Sybon.Auth.Services.UsersService
         {
             user.Password = _passwordsService.HashPassword(user.Password);
             var dbEntry = _usersConverter.Convert(user);
-            var result = await _usersRepository.AddAsync(dbEntry);
-            await _usersRepository.SaveAsync();
+            var result = await  _repositoryUnitOfWork.GetRepository<IUsersRepository>().AddAsync(dbEntry);
+            await _repositoryUnitOfWork.SaveChangesAsync();
             return result;
         }
 
         public Task RemoveAsync(long id)
         {
-            _usersRepository.RemoveAsync(id);
-            return _usersRepository.SaveAsync();
+            _repositoryUnitOfWork.GetRepository<IUsersRepository>().RemoveAsync(id);
+            return _repositoryUnitOfWork.SaveChangesAsync();
         }
 
         public async Task<User> FindByLoginAsync(string login)
         {
-            var dbEntry = await _usersRepository.FindByLoginAsync(login);
+            var dbEntry = await _repositoryUnitOfWork.GetRepository<IUsersRepository>().FindByLoginAsync(login);
             return _usersConverter.Convert(dbEntry);
-        }
-
-        public async Task SetTokenIdAsync(long userId, long tokenId)
-        {
-            var dbEntry = await _usersRepository.FindAsync(userId);
-            dbEntry.TokenId = tokenId;
-            await _usersRepository.SaveAsync();
         }
 
         public async Task<User.RoleType> GetUserRoleAsync(long userId)
