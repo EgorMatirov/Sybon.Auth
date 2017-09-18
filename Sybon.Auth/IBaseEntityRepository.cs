@@ -2,10 +2,10 @@
 
 namespace Sybon.Auth
 {
-    public interface IBaseEntityRepository<TEntity, TKey> where TEntity : class, IEntity<TKey>
+    public interface IBaseEntityRepository<TEntity> where TEntity : class, IEntity
     {
-        Task<TEntity> FindAsync(TKey key);
-        Task<TKey> AddAsync(TEntity entity);
-        Task RemoveAsync(TKey key);
+        Task<TEntity> FindAsync(long key);
+        Task<long> AddAsync(TEntity entity);
+        Task RemoveAsync(long key);
     }
 }

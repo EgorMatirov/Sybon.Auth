@@ -6,7 +6,7 @@ using Sybon.Auth.Repositories.UsersRepository.Entities;
 namespace Sybon.Auth.Repositories.UsersRepository
 {
     [UsedImplicitly]
-    public class UsersRepository : BaseEntityRepository<User, long>, IUsersRepository
+    public class UsersRepository : BaseEntityRepository<User>, IUsersRepository
     {
         public UsersRepository(AuthContext context) : base(context)
         {

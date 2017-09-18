@@ -7,7 +7,7 @@ using Sybon.Auth.Repositories.SubmitLimitsRepository.Entities;
 namespace Sybon.Auth.Repositories.SubmitLimitsRepository
 {
     [UsedImplicitly]
-    public class SubmitLimitsRepository : BaseEntityRepository<SubmitLimit, long>, ISubmitLimitsRepository
+    public class SubmitLimitsRepository : BaseEntityRepository<SubmitLimit>, ISubmitLimitsRepository
     {
         public SubmitLimitsRepository(AuthContext context) : base(context)
         {

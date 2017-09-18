@@ -1,7 +1,7 @@
 ﻿namespace Sybon.Auth
 {
-    public interface IEntity<TKey>
+    public interface IEntity
     {
-        TKey Id { get; set; }
+        long Id { get; set; }
     }
 }

@@ -6,7 +6,7 @@ using Sybon.Auth.Repositories.TokensRepository.Entities;
 
 namespace Sybon.Auth.Repositories.UsersRepository.Entities
 {
-    public class User : IEntity<long>
+    public class User : IEntity
     {
         public enum RoleType
         {

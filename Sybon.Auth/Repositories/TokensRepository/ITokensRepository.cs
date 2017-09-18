@@ -3,7 +3,7 @@ using Sybon.Auth.Repositories.TokensRepository.Entities;
 
 namespace Sybon.Auth.Repositories.TokensRepository
 {
-    public interface ITokensRepository : IBaseEntityRepository<Token, long>
+    public interface ITokensRepository : IBaseEntityRepository<Token>
     {
         Task<Token> FindByKeyAsync(string key);
     }

@@ -6,7 +6,7 @@ using Sybon.Auth.Repositories.TokensRepository.Entities;
 namespace Sybon.Auth.Repositories.TokensRepository
 {
     [UsedImplicitly]
-    public class TokensRepository : BaseEntityRepository<Token, long>, ITokensRepository
+    public class TokensRepository : BaseEntityRepository<Token>, ITokensRepository
     {
         public TokensRepository(AuthContext context) : base(context)
         {

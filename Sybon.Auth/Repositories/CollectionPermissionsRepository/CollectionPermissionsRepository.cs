@@ -6,7 +6,7 @@ using Sybon.Auth.Repositories.CollectionPermissionsRepository.Entities;
 namespace Sybon.Auth.Repositories.CollectionPermissionsRepository
 {
     [UsedImplicitly]
-    public class CollectionPermissionsRepository : BaseEntityRepository<CollectionPermission, long>, ICollectionPermissionsRepository
+    public class CollectionPermissionsRepository : BaseEntityRepository<CollectionPermission>, ICollectionPermissionsRepository
     {
         public CollectionPermissionsRepository(AuthContext context) : base(context)
         {

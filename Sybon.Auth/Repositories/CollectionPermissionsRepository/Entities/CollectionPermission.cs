@@ -2,7 +2,7 @@
 
 namespace Sybon.Auth.Repositories.CollectionPermissionsRepository.Entities
 {
-    public class CollectionPermission : IEntity<long>
+    public class CollectionPermission : IEntity
     {
         public enum PermissionType
         {

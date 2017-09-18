@@ -5,7 +5,7 @@ using Sybon.Auth.Repositories.UsersRepository.Entities;
 
 namespace Sybon.Auth.Repositories.SubmitLimitsRepository.Entities
 {
-    public class SubmitLimit : IEntity<long>
+    public class SubmitLimit : IEntity
     {
         public long Id { get; set; }
         public long UserId { get; set; }

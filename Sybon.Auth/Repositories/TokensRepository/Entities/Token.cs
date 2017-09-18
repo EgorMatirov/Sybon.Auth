@@ -4,7 +4,7 @@ using Sybon.Auth.Repositories.UsersRepository.Entities;
 
 namespace Sybon.Auth.Repositories.TokensRepository.Entities
 {
-    public class Token : IEntity<long>
+    public class Token : IEntity
     {
         public long Id { get; set; }
         [Required]
