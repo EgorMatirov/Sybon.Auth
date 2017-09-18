@@ -1,1 +1,0 @@
-java -jar .\swagger-codegen-cli-3.0.0-20170904.171256-3.jar generate -l csharp --additional-properties targetFramework=v5.0,netCoreProjectFile=true,packageName=Sybon.Auth.Client -i http://localhost:5000/swagger/v1/swagger.json -o sybon.auth.client
