@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Sybon.Auth.Services.AccountService;
@@ -36,6 +37,10 @@ namespace Sybon.Auth.Controllers
             [FromBody] UserModel user
         )
         {
+            if (user == null || !TryValidateModel(user))
+            {
+                return BadRequest();
+            }
             var userModel = new User
             {
                 Name = user.Name,
