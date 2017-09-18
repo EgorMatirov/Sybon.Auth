@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using JetBrains.Annotations;
 using Sybon.Auth.Repositories.TokensRepository;
 using Sybon.Auth.Repositories.UsersRepository;
@@ -15,16 +16,16 @@ namespace Sybon.Auth.Services.AccountService
     public class AccountService : IAccountService
     {
         private readonly IPasswordsService _passwordsService;
-        private readonly ITokensConverter _tokensConverter;
+        private readonly IMapper _mapper;
         private readonly IRepositoryUnitOfWork _repositoryUnitOfWork;
 
         public AccountService(
             IPasswordsService passwordsService,
-            ITokensConverter tokensConverter,
+            IMapper mapper,
             IRepositoryUnitOfWork repositoryUnitOfWork)
         {
             _passwordsService = passwordsService;
-            _tokensConverter = tokensConverter;
+            _mapper = mapper;
             _repositoryUnitOfWork = repositoryUnitOfWork;
         }
 
@@ -45,7 +46,7 @@ namespace Sybon.Auth.Services.AccountService
             user.Token.ExpireTime = DateTime.Now.Add(TimeSpan.FromDays(1));
 
             await _repositoryUnitOfWork.SaveChangesAsync();
-            return _tokensConverter.Convert(user.Token);
+            return _mapper.Map<Token>(user.Token);
         }
 
         private static string GenerateToken()
@@ -64,7 +65,7 @@ namespace Sybon.Auth.Services.AccountService
         public async Task<Token> CheckTokenAsync(string key)
         {
             var token = await _repositoryUnitOfWork.GetRepository<ITokensRepository>().FindByKeyAsync(key);
-            return token?.User != null ? _tokensConverter.Convert(token) : null;
+            return token?.User != null ? _mapper.Map<Token>(token) : null;
         }
     }
 }

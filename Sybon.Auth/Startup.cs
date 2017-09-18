@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using AutoMapper;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -7,9 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
 using Sybon.Auth.ApiStubs;
 using Sybon.Auth.Repositories.CollectionPermissionsRepository;
-using Sybon.Auth.Repositories.CollectionPermissionsRepository.Entities;
 using Sybon.Auth.Repositories.SubmitLimitsRepository;
-using Sybon.Auth.Repositories.SubmitLimitsRepository.Entities;
 using Sybon.Auth.Repositories.TokensRepository;
 using Sybon.Auth.Repositories.TokensRepository.Entities;
 using Sybon.Auth.Repositories.UsersRepository;
@@ -56,11 +55,9 @@ namespace Sybon.Auth
             services.AddScoped<IRepositoryUnitOfWork, RepositoryUnitOfWork<AuthContext>>();
 
             services.AddScoped<IUsersRepository, UsersRepository>();
-            services.AddScoped<IUsersConverter, UsersConverter>();
             services.AddScoped<IUsersService, UsersService>();
             
             services.AddScoped<ITokensRepository, TokensRepository>();
-            services.AddScoped<ITokensConverter, TokensConverter>();
             services.AddScoped<IAccountService, AccountService>();
             
             services.AddScoped<IPasswordsService, PasswordsService>();
@@ -72,6 +69,9 @@ namespace Sybon.Auth
             services.AddScoped<IProblemsApi, ProblemsApiStub>();
             services.AddScoped<IAccountApi, AccountApi>();
             services.AddScoped<IPermissionsApi, PermissionsApi>();
+
+            ConfigureMapper();
+            services.AddSingleton(Mapper.Instance);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -90,6 +90,24 @@ namespace Sybon.Auth
             });
 
             app.UseMvc();
+        }
+
+        private static void ConfigureMapper()
+        {
+            Mapper.Initialize(config =>
+            {
+                config.CreateMap<User, Services.UsersService.Models.User>();
+                config.CreateMap<Services.UsersService.Models.User, User>();
+                
+                config.
+                    CreateMap<Token, Services.AccountService.Models.Token>()
+                    .ForMember(dest => dest.ExpiresIn,
+                        opt => opt.MapFrom(
+                            src => src.ExpireTime == null ? null : (long?)src.ExpireTime.Value.Ticks
+                        )
+                    );
+                config.CreateMap<Services.AccountService.Models.Token, Token>();
+            });
         }
     }
 }
