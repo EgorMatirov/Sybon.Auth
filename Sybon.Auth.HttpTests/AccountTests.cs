@@ -15,11 +15,13 @@ namespace Sybon.Auth.HttpTests
     public class AccountTests
     {
         private readonly HttpClient _client;
+        private readonly AccountHelper _accountHelper;
 
         public AccountTests()
         {
             var server = new TestServer(new WebHostBuilder().UseStartup<Startup>());
             _client = server.CreateClient();
+            _accountHelper = new AccountHelper(_client);
         }
         
         [Fact]
@@ -36,14 +38,14 @@ namespace Sybon.Auth.HttpTests
         [InlineData("", "test_user", "pass")]
         public async Task RegistrateFailsWhenPartialDataIsProvided(string name, string login, string password)
         {
-            var response = await RegistrateUser(name, login, password);
+            var response = await _accountHelper.RegistrateUser(name, login, password);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }        
         
         [Fact]
         public async Task RegistrateSucceedsWhenFullDataIsProvided()
         {
-            var response = await RegistrateUser("successfull_test_user", "successfull_test_user", "password");
+            var response = await _accountHelper.RegistrateUser("successfull_test_user", "successfull_test_user", "password");
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
         
@@ -53,10 +55,10 @@ namespace Sybon.Auth.HttpTests
             const string userLogin = "auth_test_user";
             const string userPassword = "auth_test_user_pass";
             
-            var response = await RegistrateUser(userLogin, userLogin, userPassword);
+            var response = await _accountHelper.RegistrateUser(userLogin, userLogin, userPassword);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            response = await Authenticate(userLogin, userPassword);
+            response = await _accountHelper.Authenticate(userLogin, userPassword);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var now = DateTime.Now;
@@ -69,7 +71,7 @@ namespace Sybon.Auth.HttpTests
         [Fact]
         public async Task CheckFailsWhenTokenIsIncorrect()
         {
-            var response = await Check("random_trash");
+            var response = await _accountHelper.Check("random_trash");
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
@@ -79,15 +81,15 @@ namespace Sybon.Auth.HttpTests
             const string userLogin = "token_test_user";
             const string userPassword = "token_test_user_pass";
             
-            var response = await RegistrateUser(userLogin, userLogin, userPassword);
+            var response = await _accountHelper.RegistrateUser(userLogin, userLogin, userPassword);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            response = await Authenticate(userLogin, userPassword);
+            response = await _accountHelper.Authenticate(userLogin, userPassword);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var token = JsonConvert.DeserializeObject<TokenResponse>(await response.Content.ReadAsStringAsync());
             
-            response = await Check(token.Key);
+            response = await _accountHelper.Check(token.Key);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var actualToken = JsonConvert.DeserializeObject<TokenResponse>(await response.Content.ReadAsStringAsync());
@@ -100,7 +102,7 @@ namespace Sybon.Auth.HttpTests
             const string userLogin = "auth_test_user_not_exists";
             const string userPassword = "auth_test_user_pass";
             
-            var response = await Authenticate(userLogin, userPassword);
+            var response = await _accountHelper.Authenticate(userLogin, userPassword);
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
         
@@ -111,10 +113,10 @@ namespace Sybon.Auth.HttpTests
             const string userPassword = "auth_test_user_pass";
             const string userPasswordForAuth = "123";
             
-            var response = await RegistrateUser(userLogin, userLogin, userPassword);
+            var response = await _accountHelper.RegistrateUser(userLogin, userLogin, userPassword);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             
-            response = await Authenticate(userLogin, userPasswordForAuth);
+            response = await _accountHelper.Authenticate(userLogin, userPasswordForAuth);
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
@@ -124,24 +126,6 @@ namespace Sybon.Auth.HttpTests
             public string Key { get; [UsedImplicitly] set; }
             [UsedImplicitly] public long UserId { get; set; }
             public long ExpiresIn { get; [UsedImplicitly] set; }
-        }
-        
-        private Task<HttpResponseMessage> Authenticate(string login, string password)
-        {
-            return _client.GetAsync($"/api/Account/auth?login={login}&password={password}");
-        }
-
-        private Task<HttpResponseMessage> RegistrateUser(string name, string login, string password)
-        {
-            var model = new {name, login, password};
-            var json = JsonConvert.SerializeObject(model);
-            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-            return _client.PostAsync("/api/Account/reg", httpContent);
-        }
-        
-        private Task<HttpResponseMessage> Check(string token)
-        {
-            return _client.GetAsync($"/api/Account/check?api_key={token}");
         }
     }
 }
