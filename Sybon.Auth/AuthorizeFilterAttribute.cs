@@ -20,7 +20,7 @@ namespace Sybon.Auth
             
             var accountApi = (IAccountApi) context.HttpContext.RequestServices.GetService(typeof(IAccountApi));
             var token = accountApi.CheckTokenAsync(apiKey).Result;
-            if (token == null || token.ExpiresIn != null && token.ExpiresIn <= 0)
+            if (token == null || token.ExpiresIn != null && token.ExpiresIn < DateTime.UtcNow.Ticks)
             {
                 context.Result = new UnauthorizedResult();
                 return;

@@ -61,7 +61,7 @@ namespace Sybon.Auth.HttpTests
             response = await _accountHelper.Authenticate(userLogin, userPassword);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var now = DateTime.Now;
+            var now = DateTime.UtcNow;
             var jsonString = await response.Content.ReadAsStringAsync();
             var token = JsonConvert.DeserializeObject<TokenResponse>(jsonString);
             token.Key.Should().NotBeNull();

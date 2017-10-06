@@ -43,7 +43,7 @@ namespace Sybon.Auth.Services.AccountService
             }
 
             user.Token.Key = GenerateToken();
-            user.Token.ExpireTime = DateTime.Now.Add(TimeSpan.FromDays(1));
+            user.Token.ExpireTime = DateTime.UtcNow.Add(TimeSpan.FromDays(1));
 
             await _repositoryUnitOfWork.SaveChangesAsync();
             return _mapper.Map<Token>(user.Token);
