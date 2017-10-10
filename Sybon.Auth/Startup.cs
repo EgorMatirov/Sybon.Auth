@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Collections.Generic;
+using AutoMapper;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -6,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
+using Sybon.Archive.Client.Api;
+using Sybon.Archive.Client.Client;
 using Sybon.Auth.ApiStubs;
 using Sybon.Auth.Repositories.CollectionPermissionsRepository;
 using Sybon.Auth.Repositories.SubmitLimitsRepository;
@@ -17,6 +20,7 @@ using Sybon.Auth.Services.AccountService;
 using Sybon.Auth.Services.PasswordsService;
 using Sybon.Auth.Services.PermissionsService;
 using Sybon.Auth.Services.UsersService;
+using Sybon.Common;
 
 namespace Sybon.Auth
 {
@@ -45,12 +49,10 @@ namespace Sybon.Auth
                 c.OperationFilter<SwaggerApiKeySecurityFilter>();
             });
 
-            services.AddScoped(provider => new AuthContext(
-                    new DbContextOptionsBuilder<AuthContext>()
-                        .UseInMemoryDatabase("auth")
-                        .Options
-                )
-            );
+            services.AddDbContext<AuthContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+            });
 
             services.AddScoped<IRepositoryUnitOfWork, RepositoryUnitOfWork<AuthContext>>();
 
@@ -66,9 +68,17 @@ namespace Sybon.Auth
             services.AddScoped<ISubmitLimitsRepository, SubmitLimitsRepository>();
             services.AddScoped<IPermissionsService, PermissionsService>();
             
-            services.AddScoped<IProblemsApi, ProblemsApiStub>();
+            services.AddScoped<IProblemsApi, ProblemsApi>();
             services.AddScoped<IAccountApi, AccountApi>();
             services.AddScoped<IPermissionsApi, PermissionsApi>();
+            services.AddSingleton<IProblemsApi>(new ProblemsApi(new Configuration
+            {
+                BasePath = Configuration.GetConnectionString("Sybon.ArchiveUrl"),
+                ApiKey = new Dictionary<string, string>
+                {
+                    {"api_key", Configuration.GetConnectionString("ApiKey")}
+                }
+            }));
 
             ConfigureMapper();
             services.AddSingleton(Mapper.Instance);

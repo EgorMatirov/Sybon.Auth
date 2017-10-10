@@ -9,6 +9,10 @@ namespace Sybon.Auth
 {
     public class AuthContext : DbContext
     {
+        public AuthContext()
+        {
+        }
+
         public AuthContext(DbContextOptions<AuthContext> options) : base(options)
         {
         }

@@ -2,11 +2,12 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Sybon.Auth.Repositories.CollectionPermissionsRepository.Entities;
+using Sybon.Common;
 
 namespace Sybon.Auth.Repositories.CollectionPermissionsRepository
 {
     [UsedImplicitly]
-    public class CollectionPermissionsRepository : BaseEntityRepository<CollectionPermission>, ICollectionPermissionsRepository
+    public class CollectionPermissionsRepository : BaseEntityRepository<CollectionPermission, AuthContext>, ICollectionPermissionsRepository
     {
         public CollectionPermissionsRepository(AuthContext context) : base(context)
         {

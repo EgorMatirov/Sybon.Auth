@@ -1,13 +1,13 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Sybon.Auth.Repositories.SubmitLimitsRepository.Entities;
+using Sybon.Common;
 
 namespace Sybon.Auth.Repositories.SubmitLimitsRepository
 {
     [UsedImplicitly]
-    public class SubmitLimitsRepository : BaseEntityRepository<SubmitLimit>, ISubmitLimitsRepository
+    public class SubmitLimitsRepository : BaseEntityRepository<SubmitLimit, AuthContext>, ISubmitLimitsRepository
     {
         public SubmitLimitsRepository(AuthContext context) : base(context)
         {

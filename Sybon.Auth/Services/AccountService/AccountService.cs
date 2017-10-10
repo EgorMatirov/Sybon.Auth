@@ -7,8 +7,7 @@ using Sybon.Auth.Repositories.TokensRepository;
 using Sybon.Auth.Repositories.UsersRepository;
 using Sybon.Auth.Services.AccountService.Models;
 using Sybon.Auth.Services.PasswordsService;
-using Sybon.Auth.Services.UsersService;
-using Sybon.Auth.Services.UsersService.Models;
+using Sybon.Common;
 
 namespace Sybon.Auth.Services.AccountService
 {

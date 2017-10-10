@@ -2,7 +2,6 @@
 using System.Net;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Sybon.Auth.Services.AccountService;
@@ -46,7 +45,7 @@ namespace Sybon.Auth.Controllers
                 Name = user.Name,
                 Login = user.Login,
                 Password = user.Password,
-                Role = user.Login == "admin" ? Services.UsersService.Models.User.RoleType.Admin : Services.UsersService.Models.User.RoleType.User // TODO: remove
+                Role = Services.UsersService.Models.User.RoleType.User
             };
             await usersService.AddAsync(userModel);
             return Ok();
@@ -62,8 +61,6 @@ namespace Sybon.Auth.Controllers
         )
         {
             var token = await accountService.CheckTokenAsync(api_key);
-            if (token == null)
-                return Unauthorized();
             return Ok(token);
         }
         

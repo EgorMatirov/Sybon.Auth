@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Sybon.Archive.Client.Api;
 using Sybon.Auth.ApiStubs;
 using Sybon.Auth.Repositories.CollectionPermissionsRepository;
 using Sybon.Auth.Repositories.CollectionPermissionsRepository.Entities;
@@ -10,6 +11,7 @@ using Sybon.Auth.Repositories.SubmitLimitsRepository.Entities;
 using Sybon.Auth.Services.PermissionsService.Models;
 using Sybon.Auth.Services.UsersService;
 using Sybon.Auth.Services.UsersService.Models;
+using Sybon.Common;
 
 namespace Sybon.Auth.Services.PermissionsService
 {

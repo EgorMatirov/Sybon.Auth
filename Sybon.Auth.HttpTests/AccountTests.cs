@@ -72,7 +72,9 @@ namespace Sybon.Auth.HttpTests
         public async Task CheckFailsWhenTokenIsIncorrect()
         {
             var response = await _accountHelper.Check("random_trash");
-            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+            var token = await response.Content.ReadAsStringAsync();
+            token.Should().BeEmpty();
         }
 
         [Fact]

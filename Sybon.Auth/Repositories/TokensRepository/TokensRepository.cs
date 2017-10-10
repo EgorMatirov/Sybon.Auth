@@ -2,11 +2,12 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Sybon.Auth.Repositories.TokensRepository.Entities;
+using Sybon.Common;
 
 namespace Sybon.Auth.Repositories.TokensRepository
 {
     [UsedImplicitly]
-    public class TokensRepository : BaseEntityRepository<Token>, ITokensRepository
+    public class TokensRepository : BaseEntityRepository<Token, AuthContext>, ITokensRepository
     {
         public TokensRepository(AuthContext context) : base(context)
         {
@@ -16,7 +17,7 @@ namespace Sybon.Auth.Repositories.TokensRepository
         {
             return Context.Tokens
                 .Include(token => token.User)
-                .SingleOrDefaultAsync(token => string.Equals(token.Key, key));
+                .SingleOrDefaultAsync(token => token.Key == key);
         }
     }
 }

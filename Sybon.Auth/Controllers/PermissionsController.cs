@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -56,6 +57,7 @@ namespace Sybon.Auth.Controllers
         [HttpGet("{userId}")]
         [SwaggerOperation("GetUserRole")]
         [SwaggerResponse((int)HttpStatusCode.OK, typeof(User.RoleType))]
+        [EnumDataType(typeof(User.RoleType))]
         public async Task<IActionResult> GetUserRole([FromServices] IUsersService usersService, long userId)
         {
             return Ok(await usersService.GetUserRoleAsync(userId));
