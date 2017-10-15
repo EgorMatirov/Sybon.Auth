@@ -38,6 +38,7 @@ namespace Sybon.Auth
         [UsedImplicitly]
         public void ConfigureServices(IServiceCollection services)
         {
+            var securityConfig = Configuration.GetSection("Security");
             services.AddMvc();
             services.AddEntityFrameworkInMemoryDatabase();
             
@@ -73,10 +74,10 @@ namespace Sybon.Auth
             services.AddScoped<IPermissionsApi, PermissionsApi>();
             services.AddSingleton<IProblemsApi>(new ProblemsApi(new Configuration
             {
-                BasePath = Configuration.GetConnectionString("Sybon.ArchiveUrl"),
+                BasePath = securityConfig.GetValue<string>("Sybon.ArchiveUrl"),
                 ApiKey = new Dictionary<string, string>
                 {
-                    {"api_key", Configuration.GetConnectionString("ApiKey")}
+                    {"api_key", securityConfig.GetValue<string>("ApiKey")}
                 }
             }));
 
