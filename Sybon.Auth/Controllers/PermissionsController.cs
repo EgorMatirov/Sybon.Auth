@@ -60,7 +60,8 @@ namespace Sybon.Auth.Controllers
         [EnumDataType(typeof(User.RoleType))]
         public async Task<IActionResult> GetUserRole([FromServices] IUsersService usersService, long userId)
         {
-            return Ok(await usersService.GetUserRoleAsync(userId));
+            var userRole = await usersService.GetUserRoleAsync(userId);
+            return Ok(userRole.ToString());
         }
         
         public long UserId { get; set; }
