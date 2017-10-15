@@ -15,7 +15,9 @@ namespace Sybon.Auth.Repositories.UsersRepository
 
         public Task<User> FindByLoginAsync(string login)
         {
-            return Context.Users.FirstOrDefaultAsync(x => x.Login == login);
+            return Context.Users
+                .Include(u => u.Token)
+                .FirstOrDefaultAsync(x => x.Login == login);
         }
     }
 }
