@@ -40,7 +40,6 @@ namespace Sybon.Auth
         {
             var securityConfig = Configuration.GetSection("Security");
             services.AddMvc();
-            services.AddEntityFrameworkInMemoryDatabase();
             
             services.AddSwaggerGen(c =>
             {
