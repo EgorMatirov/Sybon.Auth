@@ -72,6 +72,7 @@ namespace Sybon.Auth
                     .CreateDefaultBuilder(startupArguments)
                     .UseStartup<Startup>()
                     .UseNLog()
+                    .UseUrls("http://0.0.0.0:8192")
                     .Build();
                 _app.Start();
             }
