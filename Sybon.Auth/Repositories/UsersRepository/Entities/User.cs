@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Sybon.Auth.Repositories.CollectionPermissionsRepository.Entities;
 using Sybon.Auth.Repositories.SubmitLimitsRepository.Entities;
 using Sybon.Auth.Repositories.TokensRepository.Entities;
+using Sybon.Common;
 
 namespace Sybon.Auth.Repositories.UsersRepository.Entities
 {

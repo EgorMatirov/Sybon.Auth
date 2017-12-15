@@ -40,15 +40,9 @@ namespace Sybon.Auth
         {
             var securityConfig = Configuration.GetSection("Security");
             services.AddMvc();
-            
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new Info { Title = "Sybon.Auth", Version = "v1" });
-                c.DescribeAllEnumsAsStrings();
-                c.AddSecurityDefinition("api_key", new ApiKeyScheme {In = "query", Name = "api_key"});
-                c.OperationFilter<SwaggerApiKeySecurityFilter>();
-            });
 
+            services.AddSwagger("Sybon.Auth", "v1");
+            
             services.AddDbContext<AuthContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));

@@ -7,6 +7,7 @@ using Sybon.Auth.Services.PermissionsService;
 using Sybon.Auth.Services.PermissionsService.Models;
 using Sybon.Auth.Services.UsersService;
 using Sybon.Auth.Services.UsersService.Models;
+using Sybon.Common;
 
 namespace Sybon.Auth.Controllers
 {
