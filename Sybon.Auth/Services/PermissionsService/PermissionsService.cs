@@ -34,20 +34,26 @@ namespace Sybon.Auth.Services.PermissionsService
             _repositoryUnitOfWork = repositoryUnitOfWork;
         }
 
-        public Task<PermissionType> GetToProblemAsync(long userId, long problemId)
+        public async Task<PermissionType> GetToProblemAsync(long userId, long problemId)
         {
+            if(await IsAdmin(userId))
+                return PermissionType.ReadAndWrite;
+            
             var problem = _problemsApi.GetById(problemId);
             return problem?.CollectionId == null
-                ? Task.FromResult(PermissionType.None)
-                : GetToCollectionAsync(userId, problem.CollectionId.Value);
+                ? PermissionType.None
+                : await GetToCollectionAsync(userId, problem.CollectionId.Value);
+        }
+
+        private async Task<bool> IsAdmin(long userId)
+        {
+            var user = await _usersService.FindAsync(userId);
+            return user?.Role == User.RoleType.Admin;
         }
         
         public async Task<PermissionType> GetToCollectionAsync(long userId, long collectionId)
         {
-            var user = await _usersService.FindAsync(userId);
-            if (user == null)
-                return PermissionType.None;
-            if (user.Role == User.RoleType.Admin)
+            if(await IsAdmin(userId))
                 return PermissionType.ReadAndWrite;
             var permission = await _repositoryUnitOfWork.GetRepository<ICollectionPermissionsRepository>().FindByUserAndCollectionAsync(userId, collectionId);
             if (permission == null)
