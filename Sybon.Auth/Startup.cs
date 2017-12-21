@@ -62,7 +62,6 @@ namespace Sybon.Auth
             services.AddScoped<ISubmitLimitsRepository, SubmitLimitsRepository>();
             services.AddScoped<IPermissionsService, PermissionsService>();
             
-            services.AddScoped<IProblemsApi, ProblemsApi>();
             services.AddScoped<IAccountApi, AccountApi>();
             services.AddScoped<IPermissionsApi, PermissionsApi>();
             services.AddSingleton<IProblemsApi>(new ProblemsApi(new Configuration
