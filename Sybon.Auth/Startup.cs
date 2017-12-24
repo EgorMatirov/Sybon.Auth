@@ -38,6 +38,7 @@ namespace Sybon.Auth
         [UsedImplicitly]
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             var securityConfig = Configuration.GetSection("Security");
             services.AddMvc();
 
@@ -81,6 +82,7 @@ namespace Sybon.Auth
         [UsedImplicitly]
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseCors(builder => builder.AllowAnyOrigin());
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
