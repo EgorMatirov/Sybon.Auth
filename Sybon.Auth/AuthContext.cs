@@ -30,7 +30,7 @@ namespace Sybon.Auth
                 .WithOne(pp => pp.User)
                 .HasForeignKey(pp => pp.UserId);
             modelBuilder.Entity<User>()
-                .HasOne(u => u.Token)
+                .HasMany(u => u.Tokens)
                 .WithOne(t => t.User);
             modelBuilder.Entity<User>()
                 .HasOne(u => u.SubmitLimit)

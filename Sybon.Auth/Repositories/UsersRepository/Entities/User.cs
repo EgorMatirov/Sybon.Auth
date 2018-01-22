@@ -25,7 +25,7 @@ namespace Sybon.Auth.Repositories.UsersRepository.Entities
         [Required]
         [MaxLength(100)]
         public string Password { get; set; }
-        public Token Token { get; set; }
+        public ICollection<Token> Tokens { get; set; }
         public RoleType Role { get; set; }
         public ICollection<CollectionPermission> ProblemPermissions { get; set; }
         public SubmitLimit SubmitLimit { get; set; }

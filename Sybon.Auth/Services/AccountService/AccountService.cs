@@ -35,17 +35,18 @@ namespace Sybon.Auth.Services.AccountService
                 return null;
             if (!PasswordMatches(user, password))
                 return null;
-            
-            if (user.Token == null)
-            {
-                user.Token = new Repositories.TokensRepository.Entities.Token {UserId = user.Id};
-            }
 
-            user.Token.Key = GenerateToken();
-            user.Token.ExpireTime = DateTime.UtcNow.Add(TimeSpan.FromDays(1));
+            var token = new Repositories.TokensRepository.Entities.Token
+            {
+                UserId = user.Id,
+                Key = GenerateToken(),
+                ExpireTime = DateTime.UtcNow.Add(TimeSpan.FromDays(1))
+            };
+
+            user.Tokens = user.Tokens.Append(token).ToArray();
 
             await _repositoryUnitOfWork.SaveChangesAsync();
-            return _mapper.Map<Token>(user.Token);
+            return _mapper.Map<Token>(token);
         }
 
         private static string GenerateToken()
