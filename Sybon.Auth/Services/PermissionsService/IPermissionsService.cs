@@ -9,5 +9,6 @@ namespace Sybon.Auth.Services.PermissionsService
         Task<PermissionType> GetToCollectionAsync(long userId, long collectionId);
         Task AddToCollectionAsync(long userId, long collectionId, PermissionType permission);
         bool TryIncreaseSubmitsCount(long userId, int cnt);
+        Task<PermissionType[]> GetToProblemsAsync(long userId, long[] ids);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +42,16 @@ namespace Sybon.Auth.Controllers
         {
             var permission = await permissionsService.GetToProblemAsync(userId, problemId);
             return Ok(permission.ToString());
+        }
+        
+        [HttpGet("{userId}/problems")]
+        [SwaggerOperation("GetToProblems")]
+        [SwaggerResponse((int)HttpStatusCode.OK, typeof(PermissionType))]
+        public async Task<IActionResult> GetToProblem([FromServices] IPermissionsService permissionsService, long userId, [FromQuery] string problemIds)
+        {
+            var idList = problemIds.Split(",").Select(long.Parse).Distinct().ToArray();
+            var permission = await permissionsService.GetToProblemsAsync(userId, idList);
+            return Ok(permission.Select(x => x.ToString()).ToArray());
         }
 
         [HttpPost("{userId}/requestsCount/tryIncreaseBy")]

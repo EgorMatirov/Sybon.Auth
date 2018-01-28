@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Sybon.Archive.Client.Api;
-using Sybon.Auth.ApiStubs;
 using Sybon.Auth.Repositories.CollectionPermissionsRepository;
 using Sybon.Auth.Repositories.CollectionPermissionsRepository.Entities;
 using Sybon.Auth.Repositories.SubmitLimitsRepository;
@@ -98,6 +98,18 @@ namespace Sybon.Auth.Services.PermissionsService
                 _repositoryUnitOfWork.SaveChanges();
             }
             return true;
+        }
+
+        public async Task<PermissionType[]> GetToProblemsAsync(long userId, long[] ids)
+        {
+            if(await IsAdmin(userId))
+                return ids.Select(x => PermissionType.ReadAndWrite).ToArray();
+            
+            var problems = ids.Select(id => _problemsApi.GetById(id)).ToArray();
+            return problems.Select(x => x?.CollectionId == null
+                ? PermissionType.None
+                : GetToCollectionAsync(userId, x.CollectionId.Value).Result)
+                .ToArray();
         }
 
         #region SubmitLimitsChecking
