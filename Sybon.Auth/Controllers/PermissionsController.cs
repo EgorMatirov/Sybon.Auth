@@ -46,8 +46,8 @@ namespace Sybon.Auth.Controllers
         
         [HttpGet("{userId}/problems")]
         [SwaggerOperation("GetToProblems")]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(PermissionType))]
-        public async Task<IActionResult> GetToProblem([FromServices] IPermissionsService permissionsService, long userId, [FromQuery] string problemIds)
+        [SwaggerResponse((int)HttpStatusCode.OK, typeof(PermissionType[]))]
+        public async Task<IActionResult> GetToProblems([FromServices] IPermissionsService permissionsService, long userId, [FromQuery] string problemIds)
         {
             var idList = problemIds.Split(",").Select(long.Parse).Distinct().ToArray();
             var permission = await permissionsService.GetToProblemsAsync(userId, idList);
