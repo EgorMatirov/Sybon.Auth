@@ -48,25 +48,29 @@ namespace Sybon.Auth
         {
             services.AddCors();
 
-            var metrics = AppMetrics.CreateDefaultBuilder()
-                .Report.ToInfluxDb(options =>
-                {
-                    options.InfluxDb.Password = SecurityConfiguration.InfluxDb.Password;
-                    options.InfluxDb.UserName = SecurityConfiguration.InfluxDb.UserName;
-                    options.InfluxDb.BaseUri = new Uri(SecurityConfiguration.InfluxDb.Url);
-                    options.InfluxDb.Database = SecurityConfiguration.InfluxDb.Database;
-                    options.FlushInterval = TimeSpan.FromSeconds(1);
-                })
+            var metricsBuilder = AppMetrics.CreateDefaultBuilder()
                 .Configuration.ReadFrom(Configuration)
                 .Configuration.Configure(
                     options =>
                     {
                         options.AddAppTag(ServiceName);
                         options.AddEnvTag("development");
-                    })
-                .Build();
+                    });
+            
+            if (SecurityConfiguration.InfluxDb.Enabled)
+            {
+                metricsBuilder = metricsBuilder
+                    .Report.ToInfluxDb(options =>
+                    {
+                        options.InfluxDb.Password = SecurityConfiguration.InfluxDb.Password;
+                        options.InfluxDb.UserName = SecurityConfiguration.InfluxDb.UserName;
+                        options.InfluxDb.BaseUri = new Uri(SecurityConfiguration.InfluxDb.Url);
+                        options.InfluxDb.Database = SecurityConfiguration.InfluxDb.Database;
+                        options.FlushInterval = TimeSpan.FromSeconds(1);
+                    });
+            }
 
-            services.AddMetrics(metrics);
+            services.AddMetrics(metricsBuilder.Build());
             services.AddMetricsReportScheduler();
             services.AddMetricsTrackingMiddleware();
             services.AddMetricsEndpoints();

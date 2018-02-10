@@ -25,6 +25,7 @@ namespace Sybon.Auth
         
             private IConfiguration Configuration { get; }
             
+            public bool Enabled => Configuration.GetValue<bool>("Enabled");
             public string Url => Configuration.GetValue<string>("Url");
             public string Password => Configuration.GetValue<string>("Password");
             public string UserName => Configuration.GetValue<string>("UserName");
