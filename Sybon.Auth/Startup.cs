@@ -133,6 +133,12 @@ namespace Sybon.Auth
             });
 
             app.UseMvc();
+
+            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<AuthContext>();
+                context.Database.Migrate();
+            }
         }
 
         private static void ConfigureMapper()
